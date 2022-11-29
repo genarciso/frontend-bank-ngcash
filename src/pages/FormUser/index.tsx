@@ -1,14 +1,15 @@
+import { Button, Grid, InputAdornment, Paper, TextField } from "@mui/material"
 import LockIcon from '@mui/icons-material/Lock';
-import { Grid, Paper, Button, InputAdornment, TextField } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const Login = () => {
-    const routes = useNavigate()
-    const login = () => {
-        routes("/");
+const FormUser = () => {
+    const routes = useNavigate();
+
+    const cleanForm = () => {
+        routes("/login");
     }
     return (
-        <Paper elevation={10} className="w-1/3 h-4/5">
+        <Paper elevation={10} className="w-1/3 h-2/3">
             <Grid container rowSpacing={3}>
                 <Grid item xs={12} className="flex justify-center">
                     <figure>
@@ -19,7 +20,7 @@ const Login = () => {
                     
                 </Grid>
                 <Grid item xs={12} className="flex justify-center items-center">
-                    <span className="text-neutral-900/80 text-2xl">Sign in to NG.Cash</span>
+                    <span className="text-neutral-900/80 text-2xl">Create a new account now</span>
                 </Grid>
                 <Grid item xs={12} className="flex justify-center h-24">
                     <TextField
@@ -48,31 +49,29 @@ const Login = () => {
                           }}
                         />
                 </Grid>
-                <Grid item xs={12} className="flex justify-center ">
-                    <Button 
-                        variant="contained" 
-                        color="success" 
-                        className="w-3/4 h-12"
-                        onClick={
-                            () => login()
-                        }
-                        >
-                        Sign in
-                    </Button>
-                </Grid>
-                <Grid item xs={12} className="flex justify-center" >
-                    <div className="flex justify-between items-center h-16 w-3/4">
-                        <label>New here?</label>
-                        <Link to="/user/new" className="w-3/4 h-16 flex items-center">
-                            <Button variant="outlined" className="w-full h-12">
-                            Create a new account
+                <Grid item xs={12} className="flex justify-center items-center h-24">
+                    <div className="flex justify-end items-center w-3/4">
+                        <div className="mr-4">
+                            <Button 
+                                variant="outlined" 
+                                className="w-32 h-12" 
+                                onClick={() => cleanForm()}>
+                                Cancel
                             </Button>
-                        </Link>
+                        </div>
+                        <Button 
+                            variant="contained" 
+                            color="success" 
+                            className="w-32 h-12">
+                            Save
+                        </Button>
                     </div>
+                    
                 </Grid>
             </Grid>
       </Paper>
-    );
+    )
 }
 
-export { Login }
+export { FormUser }
+
