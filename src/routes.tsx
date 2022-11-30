@@ -10,9 +10,9 @@ const RoutesPath = () => {
             <Route path="/login" element={<Login />}/>
             <Route path="/user/new" element={<FormUser />}/>
             <Route path="/dashboard" element={
-                // <RequireAuth>
+                <RequireAuth>
                     <Dashboard />
-                // </RequireAuth>
+                </RequireAuth>
                 } />
             <Route path="/" element={
                 <Navigate to="/dashboard" />

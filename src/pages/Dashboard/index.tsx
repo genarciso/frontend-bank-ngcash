@@ -4,7 +4,6 @@ import { FormTransferer } from "../../components/FormTransferer";
 import { TableTransactions } from "../../components/TableTransactions";
 
 const Dashboard = () => {
-    
     return (
         <Paper elevation={10} className="w-2/3 h-4/5 overflow-auto">
             <Grid container rowSpacing={3}>
