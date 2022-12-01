@@ -1,6 +1,12 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from "@mui/material";
 import { useState } from "react";
 import moment from 'moment';
+import { IAccount } from "../../models/IAccount";
+import { useQuery } from "react-query";
+import { api } from "../../services";
+import { IResponseCheckTransactios } from "../../services/account/types";
+import { useEffect } from "react";
+import { ITransactions } from "../../models/ITransactions";
 
 interface Column {
     id: 'debitedUser' | 'creditedUser' | 'value' | 'date';
@@ -20,13 +26,8 @@ const columns: readonly Column[] = [
     }
 ];
 
-interface ObjUser {
-    user: {
-        username: string;
-    };
-}
-
-interface Data {
+interface DataTable {
+    id: string
     debitedUser: string;
     creditedUser: string;
     value: number;
@@ -34,33 +35,31 @@ interface Data {
 }
 
 function createData(
-    debit: ObjUser,
-    credit: ObjUser,
+    id: string,
+    debit: IAccount,
+    credit: IAccount,
     value: number,
-    date: string,
-): Data {
+    date: Date,
+): DataTable {
     const dateFormat = moment(date).format(
         'DD/MM/YYYY HH:mm:ss'
       ) as string
     return {
-        debitedUser: debit.user.username,
-        creditedUser: credit.user.username,
+        id,
+        debitedUser: debit.user?.username || '',
+        creditedUser: credit.user?.username || '',
         value,
         date: dateFormat
     };
 }
 
-const rows = [
-    createData({user: {username: "teste"}}, {user: {username: "teste2"}}, 1, "2022-11-24T01:56:30.310Z"),
-    createData({user: {username: "teste"}}, {user: {username: "teste2"}}, 1, "2022-11-24T01:56:30.310Z"),
-    createData({user: {username: "teste"}}, {user: {username: "teste2"}}, 1, "2022-11-24T01:56:30.310Z"),
-    createData({user: {username: "teste"}}, {user: {username: "teste2"}}, 1, "2022-11-24T01:56:30.310Z"),
-    createData({user: {username: "teste"}}, {user: {username: "teste2"}}, 1, "2022-11-24T01:56:30.310Z"),
-    createData({user: {username: "teste"}}, {user: {username: "teste2"}}, 1, "2022-11-24T01:56:30.310Z"),
-];
+interface ITableTransactionsProps {
+    transactions: ITransactions[]
+}
 
-
-const TableTransactions = () => {
+const TableTransactions = (props: ITableTransactionsProps) => {
+    const {transactions} = props
+    const [rows, setRows] = useState<DataTable[]>([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -73,55 +72,71 @@ const TableTransactions = () => {
         setPage(0);
     };
 
-    return (
-        <Paper sx={{ width: '100%', overflow: 'auto', height: "100%" }}>
-            <TableContainer sx={{ maxHeight: 250}}>
-                <Table stickyHeader aria-label="sticky table">
-                <TableHead>
-                    <TableRow>
-                    {columns.map((column) => (
-                        <TableCell
-                        key={column.id}
-                        align={column.align}
-                        style={{ minWidth: column.minWidth }}
-                        >
-                        {column.label}
-                        </TableCell>
-                    ))}
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {rows
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => {
-                        return (
-                        <TableRow hover role="checkbox" tabIndex={-1} key={row.date}>
-                            {columns.map((column) => {
-                            const value = row[column.id];
-                            return (
-                                <TableCell key={column.id} align={column.align}>
-                                { value }
-                                </TableCell>
-                            );
-                            })}
-                        </TableRow>
-                        );
-                    })}
-                </TableBody>
-                </Table>
-            </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25, 100]}
-                component="div"
-                count={rows.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-        </Paper>
-    );
+    useEffect(() => {
+        setRows(transactions.map(transaction => ( 
+            createData(
+                transaction.id, 
+                transaction.debitedAccount || {} as IAccount, 
+                transaction.cretidedAccount || {} as IAccount, 
+                transaction.value, 
+                transaction.createdAt)
+                )));
+    }, [transactions])
 
+    return (
+        rows.length ? 
+            (
+            <Paper sx={{ width: '100%', overflow: 'auto', height: "100%" }}>
+                <TableContainer sx={{ maxHeight: 250}}>
+                    <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                        <TableRow>
+                        {columns.map((column) => (
+                            <TableCell
+                            key={column.id}
+                            align={column.align}
+                            style={{ minWidth: column.minWidth }}
+                            >
+                            {column.label}
+                            </TableCell>
+                        ))}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {rows
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((row) => {
+                            return (
+                            <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                                {columns.map((column) => {
+                                const value = row[column.id];
+                                return (
+                                    <TableCell key={column.id} align={column.align}>
+                                    { value }
+                                    </TableCell>
+                                );
+                                })}
+                            </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                    </Table>
+                </TableContainer>
+                <TablePagination
+                    rowsPerPageOptions={[5, 10, 25, 100]}
+                    component="div"
+                    count={rows.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+            </Paper>
+    ) : (
+        <div className="flex justify-center">
+            <label>No data</label>
+        </div>
+    ));
 };
 
 export { TableTransactions }

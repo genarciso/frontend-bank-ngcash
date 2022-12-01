@@ -9,7 +9,7 @@ import { AuthContextType, IAccessToken } from "./types";
 export const AuthContext = createContext({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const navigate = useNavigate();
+    const routes = useNavigate();
     
     const [accessToken, setAccessToken] = useLocalStorage<
         IAccessToken | undefined
@@ -21,8 +21,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }, {
             onSuccess: ({ data }: {data: ILoginResponse}) => {
                 setAccessToken({ access_token: data.access_token });
-                navigate('/dashboard');
+                routes('/dashboard');
             },
+            onError: (error: any) => {
+                console.log(error.response.data.message);
+            }   
         }
     );
     
@@ -32,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = () => {
         setAccessToken(undefined);
-        navigate('/login');        
+        routes('/login');        
     };
 
     const contextValue: AuthContextType = useMemo(

@@ -2,11 +2,11 @@ import { Logout } from "@mui/icons-material"
 import { Avatar, IconButton, ListItemIcon, Menu, MenuItem, Tooltip } from "@mui/material"
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 const AvatarMenu = () => {
-    
+    const { logout } = useAuth();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const routes = useNavigate();
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -15,8 +15,8 @@ const AvatarMenu = () => {
         setAnchorEl(null);
     };
 
-    const logout = () => {
-        routes("/login");
+    const logoutMenu = () => {
+        logout();
     }
 
     return (
@@ -68,7 +68,7 @@ const AvatarMenu = () => {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-                <MenuItem onClick={() => logout()}>
+                <MenuItem onClick={() => logoutMenu()}>
                     <ListItemIcon>
                         <Logout fontSize="small" />
                     </ListItemIcon>

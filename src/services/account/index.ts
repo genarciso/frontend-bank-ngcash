@@ -20,7 +20,7 @@ export class AccountAPI implements IRequestMethods {
     }
 
     getCheckTransactions(paramsSearch = {}) {
-        return axiosInstance.get<IResponseCheckTransactios>(this.url + 'transactions', {
+        return axiosInstance.get<IResponseCheckTransactios>(this.url + '/transactions/', {
             headers: getAuthHeaders(),
             params: paramsSearch
         });
